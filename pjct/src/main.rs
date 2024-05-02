@@ -1,12 +1,13 @@
 // Declaring modules
 mod graph_manager;
 mod statistics;
+
 // Imports
 use graph_manager::GraphManager;
 use statistics::Statistics;
 use petgraph::graph::{NodeIndex, UnGraph}; // Correctly import UnGraph here
 use petgraph::visit::EdgeRef; // Import EdgeRef trait for target() method
-use rand::prelude::*;
+use rand::{rngs::StdRng, SeedableRng, prelude::*};
 use std::collections::{HashMap, VecDeque};
 use std::fs::File;
 use std::io;
@@ -20,7 +21,10 @@ fn main() -> io::Result<()> {
     let mut graph_manager = GraphManager::new();
     graph_manager.build_graph(reader)?;
 
-    let mut rng = thread_rng(); // Random number generator
+    // Seeding the random number generator for consistent results
+    let seed = 12345; 
+    let mut rng = StdRng::seed_from_u64(seed); // Seeded RNG
+
     let nodes = graph_manager.get_node_indices(); // List of all node indices
 
     let mut statistics = Statistics::new();
@@ -45,10 +49,10 @@ fn main() -> io::Result<()> {
     }
 
     let mut reach_counts = vec![];
-    let total_nodes = graph_manager.node_count() as f64; // Total number of nodes in the graph
+    let total_nodes = graph_manager.node_count() as f64; // Total num of nodes in the graph
     for _ in 0..1000 { // Checking reachability from 1000 randomly selected nodes
         let &start = nodes.choose(&mut rng).unwrap();
-        let reach_count = bfs_reachability(&graph_manager.graph, start, 6); // Calculate how many nodes are reachable within 6 steps
+        let reach_count = bfs_reachability(&graph_manager.graph, start, 6); // Calculating how many nodes are reachable within 6 steps
         reach_counts.push(reach_count); // Storing result in our vector
     }
     
@@ -87,6 +91,7 @@ fn main() -> io::Result<()> {
 
     Ok(())
 }
+
 
 
 // Def the BFS algorithm 
